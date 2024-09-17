@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spam Detector</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+            font-size: 16px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+        }
+
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Spam Detector</h1>
+    <div class="container">
+        <textarea id="textInput" placeholder="Enter your text here to check if it's spam or not..."></textarea>
+        <button onclick="checkSpam()">Check for Spam</button>
+        <div id="result"></div>
+    </div>
+    <footer>
+        Powered by <a href="https://github.com/cropped33/spam_or_ham" target="_blank">spam_or_ham</a> project
+    </footer>
+
+    <script>
+        async function checkSpam() {
+            const text = document.getElementById('textInput').value;
+            const resultDiv = document.getElementById('result');
+
+            console.log("Sending request to server...");
+            try {
+                const response = await fetch('https://your-vercel-url.vercel.app/api/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: text }),
+                });
+
+                console.log("Response status:", response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log("Received data:", data);
+
+                if (data.prediction === 1) {
+                    resultDiv.textContent = `This is likely SPAM (${(data.spam_probability * 100).toFixed(2)}% probability)`;
+                    resultDiv.style.color = 'red';
+                } else {
+                    resultDiv.textContent = `This is likely NOT spam (${(data.ham_probability * 100).toFixed(2)}% probability)`;
+                    resultDiv.style.color = 'green';
+                }
+            } catch (error) {
+                resultDiv.textContent = `Error: ${error.message}`;
+                resultDiv.style.color = 'red';
+                console.error('Error:', error);
+            }
+        }
+    </script>
+</body>
+
+</html>
